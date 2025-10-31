@@ -15,6 +15,11 @@ def file_converter(file):
     return csv_file
 
 
+st.set_page_config(
+    page_title=" Excel Converter",
+    page_icon="📄",
+    )
+
 st.title("📄 Excel to CSV Converter")
 
 uploaded_file = st.file_uploader("Upload an Excel file", type=["xls", "xlsx"])
