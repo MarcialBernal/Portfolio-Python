@@ -5,7 +5,7 @@ class Plots:
     def __init__(self):
         pass
 
-    def pie_plot(self, df, names_col="Social_Media_Platform", title="Pie Chart"):
+    def pie_plot(self, df, names_col, title="Pie Chart"):
         counts = df.groupby(names_col).size().reset_index(name="User_Count")
         fig = px.pie(counts, values="User_Count", names=names_col, title=title)
         st.plotly_chart(fig)
