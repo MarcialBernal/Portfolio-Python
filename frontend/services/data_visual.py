@@ -7,12 +7,14 @@ class Plots:
         pass
 #######
     def pie_plot(self, df, x_col, title="Pie Chart"):
+        
         counts = df.groupby(x_col).size().reset_index(name="User_Count")
         fig = px.pie(counts, values="User_Count", names=x_col, title=title)
         st.plotly_chart(fig)
 
 #######
     def bar_plot(self, df, y_col, x_col, title="Bar Chart"):
+        
         if pd.api.types.is_numeric_dtype(df[y_col]):
             df = df.groupby(x_col)[y_col].mean().reset_index()
         else:
@@ -23,6 +25,7 @@ class Plots:
 
 #######
     def line_plot(self, df, x_col, y_col, title="Line Chart"):
+        
         df[x_col] = pd.to_numeric(df[x_col], errors='coerce')
         df[y_col] = pd.to_numeric(df[y_col], errors='coerce')
         df_clean = df.dropna(subset=[x_col, y_col])
@@ -37,15 +40,30 @@ class Plots:
     
 #######    
     def screen_vs_sleep_plot(self, df, x_col, y_col, size_col, color_col, title="Scatter Chart"):
+        
+        df[x_col] = pd.to_numeric(df[x_col], errors='coerce')
+        df[y_col] = pd.to_numeric(df[y_col], errors='coerce')
+        df[size_col] = pd.to_numeric(df[size_col], errors='coerce')
+
+        df_clean = df.dropna(subset=[x_col, y_col, size_col])
+        df_clean = df_clean[df_clean[size_col] > 0]
+
+        if df_clean.empty:
+            st.warning("No valid data to plot the scatter chart.")
+            return
+
+        df_clean = df_clean.head(100)
+
         fig = px.scatter(
-            df,
+            df_clean,
             x=x_col,
             y=y_col,
             size=size_col,
             color=color_col,
-            hover_data=[size_col, color_col, 'Gender'],
+            hover_data=[size_col, color_col],
             title=title,
-            size_max=40)
+            size_max=40
+        )
         st.plotly_chart(fig)
     
 #######        

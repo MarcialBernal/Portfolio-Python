@@ -48,22 +48,16 @@ try:
         col1, col2 = st.columns(2)
         
         with col1:
-            group_df = test_df.groupby('Days_Without_Social_Media', as_index=False)['Sleep_Quality(1-10)'].mean()
             plot.line_plot(
-                group_df, 
+                test_df, 
                 x_col='Days_Without_Social_Media', 
                 y_col='Sleep_Quality(1-10)', 
                 title='Average Sleep Quality vs Days Without Social Media'
                 )
             
         with col2:
-            test_df['Daily_Screen_Time(hrs)'] = pd.to_numeric(test_df['Daily_Screen_Time(hrs)'], errors='coerce')
-            test_df['Sleep_Quality(1-10)'] = pd.to_numeric(test_df['Sleep_Quality(1-10)'], errors='coerce')
-            test_df['Happiness_Index(1-10)'] = pd.to_numeric(test_df['Happiness_Index(1-10)'], errors='coerce')
-            df_clean = test_df.dropna(subset=['Daily_Screen_Time(hrs)', 'Sleep_Quality(1-10)', 'Happiness_Index(1-10)'])
-            
             plot.screen_vs_sleep_plot(
-                df_clean,
+                test_df,
                 x_col='Daily_Screen_Time(hrs)',
                 y_col='Sleep_Quality(1-10)',
                 size_col='Happiness_Index(1-10)',
