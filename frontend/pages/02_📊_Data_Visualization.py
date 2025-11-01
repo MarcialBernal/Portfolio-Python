@@ -32,18 +32,44 @@ try:
         with col1:
             plot.pie_plot(
                 test_df, 
-                names_col='Social_Media_Platform', 
+                x_col='Social_Media_Platform', 
                 title='Average User Social Media Platform'
             )
             
         with col2:
             plot.bar_plot(
                 test_df, 
-                values_col='Happiness_Index(1-10)', 
-                names_col='Social_Media_Platform', 
+                y_col='Happiness_Index(1-10)', 
+                x_col='Social_Media_Platform', 
                 title='Average Happiness by Social Media Platform'
             )
-    
+            
+    with st.container():
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            group_df = test_df.groupby('Days_Without_Social_Media', as_index=False)['Sleep_Quality(1-10)'].mean()
+            plot.line_plot(
+                group_df, 
+                x_col='Days_Without_Social_Media', 
+                y_col='Sleep_Quality(1-10)', 
+                title='Average Sleep Quality vs Days Without Social Media'
+                )
+            
+        with col2:
+            test_df['Daily_Screen_Time(hrs)'] = pd.to_numeric(test_df['Daily_Screen_Time(hrs)'], errors='coerce')
+            test_df['Sleep_Quality(1-10)'] = pd.to_numeric(test_df['Sleep_Quality(1-10)'], errors='coerce')
+            test_df['Happiness_Index(1-10)'] = pd.to_numeric(test_df['Happiness_Index(1-10)'], errors='coerce')
+            df_clean = test_df.dropna(subset=['Daily_Screen_Time(hrs)', 'Sleep_Quality(1-10)', 'Happiness_Index(1-10)'])
+            
+            plot.screen_vs_sleep_plot(
+                df_clean,
+                x_col='Daily_Screen_Time(hrs)',
+                y_col='Sleep_Quality(1-10)',
+                size_col='Happiness_Index(1-10)',
+                color_col='Social_Media_Platform',
+                title="Daily Screen Time vs Sleep Quality"
+            )
 except:
         st.error("An error has ocurred")
 
@@ -57,7 +83,17 @@ uploaded_file = st.file_uploader("Upload an CSV file", type=["csv"])
 if uploaded_file:
     try:
         st.success(f"File '{uploaded_file.name}' uploaded successfully!")
+        df = pd.read_csv(uploaded_file)
         
+        plot_type= st.selectbox("Select chart type", ["Pie", "Bar", "Line"])
+        col1 = st.selectbox("Select first column", df.columns)
+        col2 = None
+        if plot_type in ["Bar", "Line"]:
+            col2 = st.selectbox("Select second column", df.columns)
+            
+        if st.button("Update Chart"):
+            plot.interactive_plot(df, plot_type, col1, col2)
+
     except:
         st.error("An error has ocurred, maybe the file type its not correct")
 
