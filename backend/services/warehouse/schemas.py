@@ -1,3 +1,4 @@
+from datetime import datetime
 from pydantic import BaseModel
 from typing import Optional
 
@@ -32,8 +33,8 @@ class ItemBase(BaseModel):
     name: str
     quantity: Optional[int] = 0
     price: Optional[float] = None
-    category_id: int
-    location_id: int
+    category_name: str
+    section_code: str
 
 class ItemCreate(ItemBase):
     pass
@@ -42,14 +43,14 @@ class ItemUpdate(BaseModel):
     name: Optional[str] = None
     quantity: Optional[int] = None
     price: Optional[float] = None
-    category_id: Optional[int] = None
-    location_id: Optional[int] = None
+    category_name: Optional[str] = None
+    section_code: Optional[str] = None
 
     class Config:
         orm_mode = True
 
 class Item(ItemBase):
     id: int
-    created_at: str
+    created_at: datetime
     class Config:
         orm_mode = True

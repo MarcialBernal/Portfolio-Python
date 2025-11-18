@@ -31,10 +31,10 @@ class Item(Base):
     name = Column(String(50), nullable=False, index=True)
     quantity = Column(Integer, default=0)
     price = Column(Float)
-    category_id = Column(Integer, ForeignKey("categories.id"))
-    location_id = Column(Integer, ForeignKey("sections.id"))
+    category_name = Column(String, ForeignKey("categories.name"))
+    section_code = Column(String, ForeignKey("sections.code"))
     created_at = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
     
 
     category = relationship("Category", back_populates="items")
-    location = relationship("Section", back_populates="items")
+    section = relationship("Section", back_populates="items")

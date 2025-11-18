@@ -2,25 +2,28 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 import models, schemas
 
-#---------
+# ============================================================
+#                      ITEMS
+# ============================================================
+
 def get_item(db: Session, item_id: int):
     item = db.query(models.Item).filter(models.Item.id == item_id).first()
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
     return item
 
-#---------
-def get_items(db:Session):
+
+def get_items(db: Session):
     return db.query(models.Item).all()
 
-#---------
+
 def create_item(db: Session, item: schemas.ItemCreate):
 
-    category = db.query(models.Category).filter(models.Category.id == item.category_id).first()
+    category = db.query(models.Category).filter(models.Category.name == item.category_name).first()
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")
 
-    section = db.query(models.Section).filter(models.Section.id == item.location_id).first()
+    section = db.query(models.Section).filter(models.Section.code == item.section_code).first()
     if not section:
         raise HTTPException(status_code=404, detail="Section not found")
 
@@ -30,10 +33,9 @@ def create_item(db: Session, item: schemas.ItemCreate):
     db.refresh(new_item)
     return new_item
 
-#---------
+
 def update_item(db: Session, item_id: int, item_update: schemas.ItemUpdate):
     item = db.query(models.Item).filter(models.Item.id == item_id).first()
-
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
 
@@ -57,14 +59,44 @@ def update_item(db: Session, item_id: int, item_update: schemas.ItemUpdate):
 
     return item
 
-#----------
+
 def delete_item(db: Session, item_id: int):
     item = db.query(models.Item).filter(models.Item.id == item_id).first()
-    
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
     
     db.delete(item)
     db.commit()
-    
     return {"detail": "Item deleted successfully"}
+
+
+# ============================================================
+#                 CATEGORIES
+# ============================================================
+
+def get_categories(db: Session):
+    return db.query(models.Category).all()
+
+
+def create_category(db: Session, category: schemas.CategoryCreate):
+    new_category = models.Category(**category.dict())
+    db.add(new_category)
+    db.commit()
+    db.refresh(new_category)
+    return new_category
+
+
+# ============================================================
+#                   SECTIONS
+# ============================================================
+
+def get_sections(db: Session):
+    return db.query(models.Section).all()
+
+
+def create_section(db: Session, section: schemas.SectionCreate):
+    new_section = models.Section(**section.dict())
+    db.add(new_section)
+    db.commit()
+    db.refresh(new_section)
+    return new_section
