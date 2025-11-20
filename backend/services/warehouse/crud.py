@@ -6,8 +6,8 @@ import models, schemas
 #                      ITEMS
 # ============================================================
 
-def get_item(db: Session, item_id: int):
-    item = db.query(models.Item).filter(models.Item.id == item_id).first()
+def get_item(db: Session, name: str):
+    item = db.query(models.Item).filter(models.Item.name == name).first()
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
     return item

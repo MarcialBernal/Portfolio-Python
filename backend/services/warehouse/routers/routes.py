@@ -15,9 +15,9 @@ def get_items(db: Session = Depends(get_db)):
     return crud.get_items(db)
 
 
-@router.get("/items/{item_id}", response_model=schemas.Item)
-def get_item(item_id: int, db: Session = Depends(get_db)):
-    return crud.get_item(db, item_id)
+@router.get("/items/{name}", response_model=schemas.Item)
+def get_item(name: str, db: Session = Depends(get_db)):
+    return crud.get_item(db, name)
 
 
 @router.post("/items", response_model=schemas.Item)
