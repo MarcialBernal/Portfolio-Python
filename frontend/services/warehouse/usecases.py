@@ -17,11 +17,11 @@ class ItemsUsecase:
     def add_item(self, item_data: dict):
         return self.gateway.create_item(item_data)
 
-    def modify_item(self, item_id: int, item_data: dict):
-        return self.gateway.update_item(item_id, item_data)
+    def modify_item(self, name: str, item_data: dict):
+        return self.gateway.update_item(name, item_data)
 
-    def remove_item(self, item_id: int):
-        return self.gateway.delete_item(item_id)
+    def remove_item(self, name: str):
+        return self.gateway.delete_item(name)
 
 
 # ============================================================

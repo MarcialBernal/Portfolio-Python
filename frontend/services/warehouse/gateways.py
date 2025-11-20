@@ -22,13 +22,13 @@ class ItemsGateway:
         r.raise_for_status()
         return r.json()
 
-    def update_item(self, item_id: int, data: dict):
-        r = requests.put(f"{self.base_url}/items/{item_id}", json=data)
+    def update_item(self, name: str, data: dict):
+        r = requests.put(f"{self.base_url}/items/{name}", json=data)
         r.raise_for_status()
         return r.json()
 
-    def delete_item(self, item_id: int):
-        r = requests.delete(f"{self.base_url}/items/{item_id}")
+    def delete_item(self, name: str):
+        r = requests.delete(f"{self.base_url}/items/{name}")
         r.raise_for_status()
         return r.json()
 

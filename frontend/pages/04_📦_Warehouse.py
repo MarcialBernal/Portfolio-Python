@@ -120,7 +120,8 @@ with tab_items:
         else:
             st.info("Please enter a search term.")
 
-
+    
+    """     
     # EDIT ITEM 
     st.subheader("✏️ Edit Item")
 
@@ -158,7 +159,7 @@ with tab_items:
                         st.rerun()
                     except Exception as e:
                         st.error(f"Update failed: {e}")
-                        
+    """
 
     # DELETE ITEM
     st.subheader("🗑️ Delete Item")

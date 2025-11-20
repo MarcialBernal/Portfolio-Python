@@ -34,8 +34,8 @@ def create_item(db: Session, item: schemas.ItemCreate):
     return new_item
 
 
-def update_item(db: Session, item_id: int, item_update: schemas.ItemUpdate):
-    item = db.query(models.Item).filter(models.Item.id == item_id).first()
+def update_item(db: Session, name: str, item_update: schemas.ItemUpdate):
+    item = db.query(models.Item).filter(models.Item.name == name).first()
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
 
@@ -56,12 +56,11 @@ def update_item(db: Session, item_id: int, item_update: schemas.ItemUpdate):
 
     db.commit()
     db.refresh(item)
-
     return item
 
 
-def delete_item(db: Session, item_id: int):
-    item = db.query(models.Item).filter(models.Item.id == item_id).first()
+def delete_item(db: Session, name: str):
+    item = db.query(models.Item).filter(models.Item.name == name).first()
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
     

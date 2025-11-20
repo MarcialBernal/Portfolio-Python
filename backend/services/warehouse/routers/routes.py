@@ -25,14 +25,14 @@ def create_item(item: schemas.ItemCreate, db: Session = Depends(get_db)):
     return crud.create_item(db, item)
 
 
-@router.put("/items/{item_id}", response_model=schemas.Item)
-def update_item(item_id: int, item_update: schemas.ItemUpdate, db: Session = Depends(get_db)):
-    return crud.update_item(db, item_id, item_update)
+@router.put("/items/{name}", response_model=schemas.Item)
+def update_item(name: str, item_update: schemas.ItemUpdate, db: Session = Depends(get_db)):
+    return crud.update_item(db, name, item_update)
 
 
-@router.delete("/items/{item_id}")
-def delete_item(item_id: int, db: Session = Depends(get_db)):
-    return crud.delete_item(db, item_id)
+@router.delete("/items/{name}")
+def delete_item(name: str, db: Session = Depends(get_db)):
+    return crud.delete_item(db, name)
 
 
 
