@@ -3,7 +3,9 @@ from sqlalchemy import Column, Integer, String, DateTime, Float, ForeignKey, tex
 from sqlalchemy.orm import relationship
 
 
-###
+# ============================================================
+#                 CATEGORIES
+# ============================================================
 class Category(Base):
     __tablename__ = "categories"
 
@@ -13,7 +15,9 @@ class Category(Base):
     items = relationship("Item", back_populates="category")
 
 
-###
+# ============================================================
+#                   SECTIONS
+# ============================================================
 class Section(Base):
     __tablename__ = "sections"
 
@@ -23,7 +27,9 @@ class Section(Base):
     items = relationship("Item", back_populates="section")
 
 
-###
+# ============================================================
+#                      ITEMS
+# ============================================================
 class Item(Base):
     __tablename__ = "items"
 

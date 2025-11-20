@@ -39,13 +39,13 @@ def update_item(db: Session, item_id: int, item_update: schemas.ItemUpdate):
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
 
-    if item_update.category_id is not None:
-        category = db.query(models.Category).filter(models.Category.id == item_update.category_id).first()
+    if item_update.category_name is not None:
+        category = db.query(models.Category).filter(models.Category.name == item_update.category_name).first()
         if not category:
             raise HTTPException(status_code=404, detail="Category not found")
 
-    if item_update.location_id is not None:
-        section = db.query(models.Section).filter(models.Section.id == item_update.location_id).first()
+    if item_update.section_code is not None:
+        section = db.query(models.Section).filter(models.Section.code == item_update.section_code).first()
         if not section:
             raise HTTPException(status_code=404, detail="Section not found")
 

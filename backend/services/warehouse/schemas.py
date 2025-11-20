@@ -2,7 +2,9 @@ from datetime import datetime
 from pydantic import BaseModel
 from typing import Optional
 
-# ---- Category ----
+# ============================================================
+#                 CATEGORIES
+# ============================================================
 class CategoryBase(BaseModel):
     name: str
 
@@ -15,7 +17,9 @@ class Category(CategoryBase):
         orm_mode = True
 
 
-# ---- Section ----
+# ============================================================
+#                   SECTIONS
+# ============================================================
 class SectionBase(BaseModel):
     code: str
 
@@ -28,7 +32,9 @@ class Section(SectionBase):
         orm_mode = True
 
 
-# ---- Item ----
+# ============================================================
+#                      ITEMS
+# ============================================================
 class ItemBase(BaseModel):
     name: str
     quantity: Optional[int] = 0
