@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 
 from services.warehouse.usecases import (
     ItemsUsecase,
@@ -96,7 +97,7 @@ with tab_items:
 
     # TABLE ITEMS
     st.subheader("Item List")
-    st.dataframe(items, use_container_width=True)
+    st.dataframe(items, width='stretch')
 
 
     # CREATE ITEM
@@ -142,9 +143,14 @@ with tab_items:
         if search_q.strip():
             try:
                 result = items_service.get_item(search_q.strip())
-                st.table(result)
+
+                if result:
+                    df = pd.DataFrame([result])
+                    st.dataframe(df, width='stretch')
+                else:
+                    st.info("No items found.")
             except Exception:
-                st.error("Item not found or something went wrong.")
+                st.error("Item not found or an error occurred.")
         else:
             st.info("Please enter a search term.")
 
@@ -218,7 +224,7 @@ with tab_categories:
     st.header("Categories")
 
     categories = get_categories()
-    st.dataframe(categories, use_container_width=True)
+    st.dataframe(categories, width='stretch')
 
     st.subheader("➕ Create Category")
     with st.form("create_category_form"):
@@ -243,7 +249,7 @@ with tab_sections:
     st.header("Sections")
 
     sections = get_sections()
-    st.dataframe(sections, use_container_width=True)
+    st.dataframe(sections, width='stretch')
 
     st.subheader("➕ Create Section")
     with st.form("create_section_form"):
