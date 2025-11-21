@@ -23,15 +23,40 @@ st.set_page_config(
 
 BASE_URL = "http://localhost:8000"
 
-# Initialize gateways
-items_gateway = ItemsGateway(BASE_URL)
-categories_gateway = CategoriesGateway(BASE_URL)
-sections_gateway = SectionsGateway(BASE_URL)
+@st.cache_resource
+def get_services(base_url: str):
+    items_gateway = ItemsGateway(base_url)
+    categories_gateway = CategoriesGateway(base_url)
+    sections_gateway = SectionsGateway(base_url)
 
-# Initialize usecases
-items_uc = ItemsUsecase(items_gateway)
-categories_uc = CategoriesUsecase(categories_gateway)
-sections_uc = SectionsUsecase(sections_gateway)
+    items_service = ItemsUsecase(items_gateway)
+    categories_service = CategoriesUsecase(categories_gateway)
+    sections_service = SectionsUsecase(sections_gateway)
+
+    return items_service, categories_service, sections_service
+
+
+items_service, categories_service, sections_service = get_services(BASE_URL)
+
+
+# ============================================================
+#   CACHED DATA
+# ============================================================
+
+@st.cache_data
+def get_items():
+    return items_service.list_items()
+
+@st.cache_data
+def get_categories():
+    return categories_service.list_categories()
+
+@st.cache_data
+def get_sections():
+    return sections_service.list_sections()
+
+def refresh_cache():
+    st.cache_data.clear()
 
 
 # ============================================================
@@ -41,7 +66,6 @@ sections_uc = SectionsUsecase(sections_gateway)
 st.title("📦 Warehouse Dashboard")
 st.write("Manage Items, Categories and Sections")
 
-
 # ============================================================
 #   TABS
 # ============================================================
@@ -50,7 +74,6 @@ tab_items, tab_categories, tab_sections = st.tabs(
     ["📦 Items", "🏷️ Categories", "📁 Sections"]
 )
 
-
 # ============================================================
 #   TAB ITEMS
 # ============================================================
@@ -58,10 +81,11 @@ tab_items, tab_categories, tab_sections = st.tabs(
 with tab_items:
     st.header("Items Inventory")
 
-    # BACKEND DATA
-    items = items_uc.list_items()
-    categories = categories_uc.list_categories()
-    sections = sections_uc.list_sections()
+    # BACKEND DATA (cacheadas)
+    items = get_items()
+    categories = get_categories()
+    sections = get_sections()
+
 
     # METRICS
     col1, col2, col3 = st.columns(3)
@@ -69,9 +93,11 @@ with tab_items:
     col2.metric("Categories", len(categories))
     col3.metric("Sections", len(sections))
 
+
     # TABLE ITEMS
     st.subheader("Item List")
-    st.dataframe(items, width='stretch')
+    st.dataframe(items, use_container_width=True)
+
 
     # CREATE ITEM
     st.subheader("➕ Create Item")
@@ -79,9 +105,14 @@ with tab_items:
         c1, c2 = st.columns(2)
         with c1:
             name = st.text_input("Item Name")
-            category_name = st.text_input("Category Name")
+            # Dropdown para categorías
+            category_options = [cat["name"] for cat in get_categories()]
+            category_name = st.selectbox("Category", options=category_options)
+            price = st.number_input("Price", min_value=0.0, format="%.2f")
         with c2:
-            section_code = st.text_input("Section Code")
+            # Dropdown para secciones
+            section_options = [sec["code"] for sec in get_sections()]
+            section_code = st.selectbox("Section", options=section_options)
             quantity = st.number_input("Quantity", min_value=0)
 
         submit_item = st.form_submit_button("Create Item")
@@ -92,15 +123,17 @@ with tab_items:
                 "category_name": category_name,
                 "section_code": section_code,
                 "quantity": quantity,
+                "price": price,
             }
             try:
-                items_uc.add_item(data)
+                items_service.add_item(data)
                 st.success("Item created successfully")
+                refresh_cache()
                 st.rerun()
-            except Exception as e:
-                st.error(e)
-                
-                
+            except Exception:
+                st.error("Failed to create item. Please check your input.")
+
+
     # SEARCH ITEM
     st.subheader("🔎 Search Item")
     search_q = st.text_input("Search by name")
@@ -108,69 +141,73 @@ with tab_items:
     if st.button("Search"):
         if search_q.strip():
             try:
-                search_results = items_uc.get_item(search_q.strip())
-
-                if search_results:
-                    st.table(search_results)
-                else:
-                    st.info("No items found.")
-
-            except Exception as e:
-                st.error(f"Error: {e}")
+                result = items_service.get_item(search_q.strip())
+                st.table(result)
+            except Exception:
+                st.error("Item not found or something went wrong.")
         else:
             st.info("Please enter a search term.")
 
-    
-    """     
-    # EDIT ITEM 
-    st.subheader("✏️ Edit Item")
 
-    all_items = items_uc.list_items()
-    if not all_items:
-        st.info("No items available to edit.")
-    else:
-        # dropdown shows "id - name"
-        options = {f'{it["id"]} - {it["name"]}': it["id"] for it in all_items}
-        sel_label = st.selectbox("Select item to edit", options=list(options.keys()))
-        selected_id = options[sel_label]
+    # MODIFY ITEM 
+    st.subheader("✏️ Modify Item")
 
-        # load current values
-        current = next((it for it in all_items if it["id"] == selected_id), None)
-        if current:
-            with st.form("edit_item"):
-                e1, e2 = st.columns(2)
-                with e1:
-                    new_name = st.text_input("Name", value=current.get("name",""))
-                    new_category = st.text_input("Category", value=current.get("category_name",""))
-                with e2:
-                    new_section = st.text_input("Section", value=current.get("section_code",""))
-                    new_qty = st.number_input("Quantity", min_value=0, value=int(current.get("quantity",0)))
-                save = st.form_submit_button("Save changes")
-                if save:
-                    update_payload = {
-                        "name": new_name,
-                        "category_name": new_category,
-                        "section_code": new_section,
-                        "quantity": new_qty,
-                    }
-                    try:
-                        items_uc.modify_item(selected_id, update_payload)
-                        st.success("Item updated.")
-                        st.rerun()
-                    except Exception as e:
-                        st.error(f"Update failed: {e}")
-    """
+    modify_name = st.text_input("Item name to modify")
+
+    if st.button("Load item"):
+        if modify_name.strip():
+            try:
+                item = items_service.get_item(modify_name.strip())
+                st.session_state["item_to_modify"] = item
+                st.success("Item loaded. Now modify fields.")
+            except Exception:
+                st.error("Item not found or something went wrong.")
+        else:
+            st.info("Enter a name.")
+
+    # If an item was loaded → show editable form
+    if "item_to_modify" in st.session_state:
+
+        item = st.session_state["item_to_modify"]
+
+        new_name = st.text_input("Name", value=item["name"])
+        new_price = st.number_input("Price", value=item["price"])
+        new_category = st.text_input("Category name", value=item["category_name"])
+        new_section = st.text_input("Section code", value=item["section_code"])
+
+        if st.button("Save changes"):
+            update_payload = {
+                "name": new_name,
+                "price": new_price,
+                "category_name": new_category,
+                "section_code": new_section
+            }
+
+            try:
+                updated = items_service.modify_item(item["name"], update_payload)
+                st.success("Item updated successfully!")
+                st.table(updated)
+                st.cache_data.clear()
+                st.rerun()
+            except Exception:
+                st.error("Failed to update item. Check your input.")
+
 
     # DELETE ITEM
     st.subheader("🗑️ Delete Item")
-    item_id_delete = st.number_input("Item ID", min_value=1, step=1)
+    item_name_delete = st.text_input("Item Name to Delete")
+
     if st.button("Delete Item"):
-        try:
-            items_uc.remove_item(item_id_delete)
-            st.success("Item removed")
-            st.rerun()
-        except Exception as e:
-            st.error(e)
+        if item_name_delete.strip():
+            try:
+                items_service.remove_item(item_name_delete.strip())
+                st.success("Item removed")
+                refresh_cache()
+                st.rerun()
+            except Exception:
+                st.error("Item not found or something went wrong.")
+        else:
+            st.info("Please enter an item name.")
 
 
 # ============================================================
@@ -180,8 +217,8 @@ with tab_items:
 with tab_categories:
     st.header("Categories")
 
-    categories = categories_uc.list_categories()
-    st.dataframe(categories, width='stretch')
+    categories = get_categories()
+    st.dataframe(categories, use_container_width=True)
 
     st.subheader("➕ Create Category")
     with st.form("create_category_form"):
@@ -190,8 +227,9 @@ with tab_categories:
         submit_cat = st.form_submit_button("Create Category")
         if submit_cat:
             try:
-                categories_uc.add_category({"name": name})
+                categories_service.add_category({"name": name})
                 st.success("Category created")
+                refresh_cache()
                 st.rerun()
             except Exception as e:
                 st.error(e)
@@ -204,8 +242,8 @@ with tab_categories:
 with tab_sections:
     st.header("Sections")
 
-    sections = sections_uc.list_sections()
-    st.dataframe(sections, width='stretch')
+    sections = get_sections()
+    st.dataframe(sections, use_container_width=True)
 
     st.subheader("➕ Create Section")
     with st.form("create_section_form"):
@@ -214,8 +252,9 @@ with tab_sections:
         submit_sec = st.form_submit_button("Create Section")
         if submit_sec:
             try:
-                sections_uc.add_section({"code": code})
+                sections_service.add_section({"code": code})
                 st.success("Section created")
+                refresh_cache()
                 st.rerun()
             except Exception as e:
                 st.error(e)
