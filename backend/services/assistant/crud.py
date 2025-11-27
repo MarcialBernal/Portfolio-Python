@@ -3,99 +3,50 @@ from fastapi import HTTPException
 import models, schemas
 
 # ============================================================
-#                      ITEMS
+#                      USERS (GYM ASSISTANT)
 # ============================================================
 
-def get_item(db: Session, name: str):
-    item = db.query(models.Item).filter(models.Item.name == name).first()
-    if not item:
-        raise HTTPException(status_code=404, detail="Item not found")
-    return item
+def get_user(db: Session, user_name: str):
+    user = db.query(models.User).filter(models.User.name == user_name).all()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
 
 
-def get_items(db: Session):
-    return db.query(models.Item).all()
+def get_user_by_name_and_age(db: Session, name: str, age: int):
+    return (db.query(models.User).filter(models.User.name == name, models.User.age == age).all())
 
 
-def create_item(db: Session, item: schemas.ItemCreate):
+def get_users(db: Session):
+    return db.query(models.User).all()
 
-    category = db.query(models.Category).filter(models.Category.name == item.category_name).first()
-    if not category:
-        raise HTTPException(status_code=404, detail="Category not found")
 
-    section = db.query(models.Section).filter(models.Section.code == item.section_code).first()
-    if not section:
-        raise HTTPException(status_code=404, detail="Section not found")
-
-    new_item = models.Item(**item.dict())
-    db.add(new_item)
+def create_user(db: Session, user: schemas.UserCreate):
+    new_user = models.User(**user.dict())
+    db.add(new_user)
     db.commit()
-    db.refresh(new_item)
-    return new_item
+    db.refresh(new_user)
+    return new_user
 
 
-def update_item(db: Session, name: str, item_update: schemas.ItemUpdate):
-    item = db.query(models.Item).filter(models.Item.name == name).first()
-    if not item:
-        raise HTTPException(status_code=404, detail="Item not found")
+def update_user(db: Session, user_id: int, user_update: schemas.UserUpdate):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
 
-    if item_update.category_name is not None:
-        category = db.query(models.Category).filter(models.Category.name == item_update.category_name).first()
-        if not category:
-            raise HTTPException(status_code=404, detail="Category not found")
-
-    if item_update.section_code is not None:
-        section = db.query(models.Section).filter(models.Section.code == item_update.section_code).first()
-        if not section:
-            raise HTTPException(status_code=404, detail="Section not found")
-
-    update_data = item_update.dict(exclude_unset=True)
-
-    for field, value in update_data.items():
-        setattr(item, field, value)
+    for field, value in user_update.dict(exclude_unset=True).items():
+        setattr(user, field, value)
 
     db.commit()
-    db.refresh(item)
-    return item
+    db.refresh(user)
+    return user
 
 
-def delete_item(db: Session, name: str):
-    item = db.query(models.Item).filter(models.Item.name == name).first()
-    if not item:
-        raise HTTPException(status_code=404, detail="Item not found")
-    
-    db.delete(item)
+def delete_user(db: Session, user_id: int):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    db.delete(user)
     db.commit()
-    return {"detail": "Item deleted successfully"}
-
-
-# ============================================================
-#                 CATEGORIES
-# ============================================================
-
-def get_categories(db: Session):
-    return db.query(models.Category).all()
-
-
-def create_category(db: Session, category: schemas.CategoryCreate):
-    new_category = models.Category(**category.dict())
-    db.add(new_category)
-    db.commit()
-    db.refresh(new_category)
-    return new_category
-
-
-# ============================================================
-#                   SECTIONS
-# ============================================================
-
-def get_sections(db: Session):
-    return db.query(models.Section).all()
-
-
-def create_section(db: Session, section: schemas.SectionCreate):
-    new_section = models.Section(**section.dict())
-    db.add(new_section)
-    db.commit()
-    db.refresh(new_section)
-    return new_section
+    return {"detail": "User deleted successfully"}

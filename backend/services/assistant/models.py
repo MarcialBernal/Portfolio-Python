@@ -1,46 +1,22 @@
 from database import Base
-from sqlalchemy import Column, Integer, String, DateTime, Float, ForeignKey, text
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, DateTime, Float, text
 
 
 # ============================================================
-#                 CATEGORIES
-# ============================================================
-class Category(Base):
-    __tablename__ = "categories"
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String(50), nullable=False, unique=True)
-
-    items = relationship("Item", back_populates="category")
-
-
-# ============================================================
-#                   SECTIONS
-# ============================================================
-class Section(Base):
-    __tablename__ = "sections"
-
-    id = Column(Integer, primary_key=True)
-    code = Column(String(2), nullable=False, unique=True) 
-
-    items = relationship("Item", back_populates="section")
-
-
-# ============================================================
-#                      ITEMS
+#                      USERS (GYM ASSISTANT)
 # ============================================================
 class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True)
     name = Column(String(50), nullable=False, index=True)
-    quantity = Column(Integer, default=0)
-    price = Column(Float)
-    category_name = Column(String, ForeignKey("categories.name"))
-    section_code = Column(String, ForeignKey("sections.code"))
-    created_at = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
-    
+    age = Column(Integer, nullable=False)
+    weight = Column(Float, nullable=False)
+    height = Column(Float, nullable=False)
+    training_days = Column(Integer, nullable=False)
+    training_hours = Column(Float, nullable=False)
+    goal = Column(String(100), nullable=False)
+    experience = Column(String(50))
 
-    category = relationship("Category", back_populates="items")
-    section = relationship("Section", back_populates="items")
+    created_at = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
+

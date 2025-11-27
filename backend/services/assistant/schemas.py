@@ -3,54 +3,30 @@ from pydantic import BaseModel
 from typing import Optional
 
 # ============================================================
-#                 CATEGORIES
-# ============================================================
-class CategoryBase(BaseModel):
-    name: str
-
-class CategoryCreate(CategoryBase):
-    pass
-
-class Category(CategoryBase):
-    id: int
-    class Config:
-        orm_mode = True
-
-
-# ============================================================
-#                   SECTIONS
-# ============================================================
-class SectionBase(BaseModel):
-    code: str
-
-class SectionCreate(SectionBase):
-    pass
-
-class Section(SectionBase):
-    id: int
-    class Config:
-        orm_mode = True
-
-
-# ============================================================
-#                      USERS
+#                      USERS (GYM ASSISTANT)
 # ============================================================
 class UserBase(BaseModel):
     name: str
-    quantity: Optional[int] = 0
-    price: Optional[float] = None
-    category_name: str
-    section_code: str
+    age: int
+    weight: float
+    height: float
+    training_days: int       
+    training_hours: float    
+    goal: str                
+    experience: Optional[str] = None 
 
 class UserCreate(UserBase):
     pass
 
 class UserUpdate(BaseModel):
     name: Optional[str] = None
-    quantity: Optional[int] = None
-    price: Optional[float] = None
-    category_name: Optional[str] = None
-    section_code: Optional[str] = None
+    age: Optional[int] = None
+    weight: Optional[float] = None
+    height: Optional[float] = None
+    training_days: Optional[int] = None
+    training_hours: Optional[float] = None
+    goal: Optional[str] = None
+    experience: Optional[str] = None
 
     class Config:
         orm_mode = True
@@ -58,5 +34,6 @@ class UserUpdate(BaseModel):
 class User(UserBase):
     id: int
     created_at: datetime
+
     class Config:
         orm_mode = True
