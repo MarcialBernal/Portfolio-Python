@@ -1,4 +1,4 @@
-from database import Base, engine
+from services.gym_assistant.database import Base, engine
 import models
 
 print("Creating tables...")

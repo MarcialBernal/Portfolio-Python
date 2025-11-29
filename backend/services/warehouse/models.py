@@ -1,4 +1,4 @@
-from database import Base
+from services.warehouse.database import Base
 from sqlalchemy import Column, Integer, String, DateTime, Float, ForeignKey, text
 from sqlalchemy.orm import relationship
 

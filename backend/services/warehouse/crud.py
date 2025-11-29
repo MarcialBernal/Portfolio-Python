@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
-import models, schemas
+from services.warehouse import models, schemas
 
 # ============================================================
 #                      ITEMS
