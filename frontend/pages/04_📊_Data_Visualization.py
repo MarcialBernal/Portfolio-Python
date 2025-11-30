@@ -9,7 +9,6 @@ st.set_page_config(
     )
 
 st.markdown("# 📊 Data Visualization")
-st.sidebar.header("Processed Data")
 
 with st.expander("Introduction", expanded=True):
     st.markdown("""
