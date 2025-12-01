@@ -1,9 +1,9 @@
 import streamlit as st
-from services.gym_assistant.assistant import GymAssistant  
+from services.gym_assistant.assistant_client import AssistantClient  
 
 st.set_page_config(page_title="Gym Assistant Chat", layout="wide")
 
-assistant = GymAssistant()
+assistant = AssistantClient()
 
 st.title("🏋️ Gym Assistant")
 

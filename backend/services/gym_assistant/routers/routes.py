@@ -2,7 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from services.gym_assistant import crud, schemas
 from services.gym_assistant.database import get_db
+from services.gym_assistant.assistant import GymAssistant
 
+assistant = GymAssistant()
 router = APIRouter()
 
 # ============================================================
@@ -40,3 +42,14 @@ def update_user(user_id: int, user_update: schemas.UserUpdate, db: Session = Dep
 @router.delete("/users/{user_id}")
 def delete_user(user_id: int, db: Session = Depends(get_db)):
     return crud.delete_user(db, user_id)
+
+
+# ============================================================
+#                      GYM ASSISTANT
+# ============================================================
+
+@router.post("/assistant")
+def assistant_chat(payload: dict):
+    messages = payload.get("messages", [])
+    reply = assistant.run(messages)
+    return {"reply": reply}
