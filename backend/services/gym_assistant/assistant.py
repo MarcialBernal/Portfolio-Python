@@ -66,6 +66,7 @@ class GymAssistant:
             model="gpt-4o-mini",
             messages=messages,
             tools=self.tools
+            tool_choice="auto"
         )
 
         msg = response.choices[0].message
