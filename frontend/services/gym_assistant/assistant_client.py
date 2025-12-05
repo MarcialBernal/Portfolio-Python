@@ -5,10 +5,7 @@ class AssistantClient:
     def __init__(self):
         self.url = os.getenv("ASSISTANT_API_URL")
 
-    def send(self, message, conversation):
+    def chat(self, messages):
         r = requests.post(self.url, json={
-            "message": message,
-            "history": conversation
+            "messages": messages
         })
-        r.raise_for_status()
-        return r.json()["reply"]

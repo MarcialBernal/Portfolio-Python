@@ -37,7 +37,7 @@ with col1:
         st.session_state.messages.append({"role": "user", "content": user_input})
 
         with st.chat_message("assistant"):
-            reply = assistant.chat(user_input)
+            reply = assistant.chat(st.session_state.messages)
             st.write(reply)
 
         st.session_state.messages.append({"role": "assistant", "content": reply})

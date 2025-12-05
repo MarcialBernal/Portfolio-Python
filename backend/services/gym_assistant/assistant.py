@@ -1,8 +1,11 @@
 import json
 import os
+from dotenv import load_dotenv
 from openai import OpenAI
 from services.gym_assistant import crud
 from services.gym_assistant.database import SessionLocal
+
+load_dotenv()
 
 class GymAssistant:
     def __init__(self):
@@ -65,7 +68,7 @@ class GymAssistant:
         response = self.client.chat.completions.create(
             model="gpt-4o-mini",
             messages=messages,
-            tools=self.tools
+            tools=self.tools,
             tool_choice="auto"
         )
 
